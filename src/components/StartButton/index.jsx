@@ -4,7 +4,7 @@ import { Container } from './styles'
 
 const StartButton = ({ callback }) => {
   return (
-    <Container>Start game</Container>
+    <Container onClick={callback}>Start game</Container>
   )
 }
 
