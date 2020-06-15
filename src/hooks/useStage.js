@@ -7,12 +7,12 @@ export const useStage = (player, resetPlayer) => {
 
   useEffect(() => {
     const updateStage = prevStage => {
-      // First flush the stage
+      // Flush the stage
       const newStage = prevStage.map(row => (
         row.map(cell => (cell[1] === 'clear' ? [0, 'clear'] : cell))
       ))
 
-      // Then draw the tetromino
+      // Draw the tetromino
       player.tetromino.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value !== 0) {
@@ -24,11 +24,16 @@ export const useStage = (player, resetPlayer) => {
         })
       })
 
+      // Spawn new tetromino
+      if (player.collided) {
+        resetPlayer()
+      }
+
       return newStage
     }
 
     setStage(updateStage)
-  }, [player])
+  }, [player, resetPlayer])
 
   return [stage, setStage]
 }
