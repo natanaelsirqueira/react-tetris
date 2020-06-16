@@ -6,12 +6,14 @@ import StartButton from '../StartButton'
 
 import { useStage } from '../../hooks/useStage'
 import { usePlayer } from '../../hooks/usePlayer'
+import { useInterval } from '../../hooks/useInterval'
 
 import { createStage, checkCollision, Keycodes } from '../../helpers/gameHelpers'
 
 import { TetrisWrapper, Tetris, Panel } from './styles'
 
 const Game = () => {
+  const [dropTime, setDropTime] = useState(null)
   const [gameOver, setGameOver] = useState(false)
 
   const [player, updatePlayerPosition, rotatePlayer, resetPlayer] = usePlayer()
@@ -19,6 +21,7 @@ const Game = () => {
 
   const startGame = useCallback(() => {
     setStage(createStage())
+    setDropTime(1000)
     resetPlayer()
     setGameOver(false)
   }, [resetPlayer, setStage])
@@ -37,6 +40,7 @@ const Game = () => {
     if (checkCollision(player, stage, intendedMove)) {
       if (player.pos.y < 1) {
         setGameOver(true)
+        setDropTime(null)
       }
 
       updatePlayerPosition({ x: 0, y: 0, collided: true })
@@ -55,12 +59,22 @@ const Game = () => {
     } else if (keyCode === Keycodes.UP_ARROW) {
       rotatePlayer(stage, 1)
     } else if (keyCode === Keycodes.DOWN_ARROW) {
+      setDropTime(null)
       drop()
     }
   }, [drop, gameOver, moveInX, rotatePlayer, stage])
 
+  const handleKeyUp = useCallback(({ keyCode }) => {
+    if (!gameOver && keyCode === Keycodes.DOWN_ARROW) {
+      setDropTime(1000)
+    }
+
+  }, [gameOver])
+
+  useInterval(() => drop(), dropTime)
+
   return (
-    <TetrisWrapper role="button" tabIndex="0" onKeyDown={handleKeyDown}>
+    <TetrisWrapper role="button" tabIndex="0" onKeyDown={handleKeyDown} onKeyUp={handleKeyUp}>
       <Tetris>
         <Stage stage={stage} />
 
