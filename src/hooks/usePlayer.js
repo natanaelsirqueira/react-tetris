@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 
-import { getRandomTetromino, STAGE_WIDTH } from '../helpers/gameHelpers'
+import { getRandomTetromino, STAGE_WIDTH, checkCollision } from '../helpers/gameHelpers'
 import TETROMINOES from '../helpers/tetrominoes'
 
 export const usePlayer = () => {
@@ -18,6 +18,38 @@ export const usePlayer = () => {
     }))
   }
 
+  const rotate = useCallback((tetromino, dir) => {
+    const transposedTetro = tetromino.map((_, index) =>
+      tetromino.map(col => col[index])
+    )
+
+    return dir > 0 ? transposedTetro.map(row => row.reverse()) : transposedTetro.reverse()
+  }, [])
+
+  const rotatePlayer = useCallback((stage, dir) => {
+    // FIX ME abosolutely need to tackle this
+    const playerClone = JSON.parse(JSON.stringify(player))
+
+    playerClone.tetromino = rotate(playerClone.tetromino, dir)
+
+    const pos = playerClone.pos.x
+    let offset = 1
+
+    while (checkCollision(playerClone, stage, { x: 0, y: 0 })) {
+      playerClone.pos.x += offset
+
+      offset = -(offset + (offset > 0 ? 1 : - 1))
+
+      if (offset > playerClone.tetromino[0].length) {
+        rotate(playerClone.tetromino, -dir)
+
+        playerClone.pos.x = pos
+      }
+    }
+
+    setPlayer(playerClone)
+  }, [player, rotate])
+
   const resetPlayer = useCallback(() => {
     setPlayer({
       pos: { x: STAGE_WIDTH / 2 - 2, y: 0 },
@@ -26,5 +58,5 @@ export const usePlayer = () => {
     })
   }, [])
 
-  return [player, updatePlayerPosition, resetPlayer]
+  return [player, updatePlayerPosition, rotatePlayer, resetPlayer]
 }

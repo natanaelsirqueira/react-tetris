@@ -14,7 +14,7 @@ import { TetrisWrapper, Tetris, Panel } from './styles'
 const Game = () => {
   const [gameOver, setGameOver] = useState(false)
 
-  const [player, updatePlayerPosition, resetPlayer] = usePlayer()
+  const [player, updatePlayerPosition, rotatePlayer, resetPlayer] = usePlayer()
   const [stage, setStage] = useStage(player, resetPlayer)
 
   const startGame = useCallback(() => {
@@ -52,10 +52,12 @@ const Game = () => {
       moveInX(-1)
     } else if (keyCode === Keycodes.RIGHT_ARROW) {
       moveInX(1)
+    } else if (keyCode === Keycodes.UP_ARROW) {
+      rotatePlayer(stage, 1)
     } else if (keyCode === Keycodes.DOWN_ARROW) {
       drop()
     }
-  }, [drop, gameOver, moveInX])
+  }, [drop, gameOver, moveInX, rotatePlayer, stage])
 
   return (
     <TetrisWrapper role="button" tabIndex="0" onKeyDown={handleKeyDown}>
