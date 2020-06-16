@@ -8,4 +8,4 @@ const Cell = ({ type }) => {
   return <Container type={type} color={TETROMINOES[type].color} />
 }
 
-export default Cell
+export default React.memo(Cell)

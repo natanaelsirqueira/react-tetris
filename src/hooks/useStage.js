@@ -4,15 +4,15 @@ import { createStage } from '../helpers/gameHelpers'
 
 export const useStage = (player, resetPlayer) => {
   const [stage, setStage] = useState(createStage())
-  const [clearedRows, setClearedRows] = useState(0)
+  const [rowsCleared, setRowsCleared] = useState(0)
 
   useEffect(() => {
-    setClearedRows(0)
+    setRowsCleared(0)
 
     const sweepRows = newStage =>
       newStage.reduce((ack, row) => {
         if (row.findIndex(cell => cell[0] === 0) === -1) {
-          setClearedRows(prev => prev + 1);
+          setRowsCleared(prev => prev + 1);
           ack.unshift(new Array(newStage[0].length).fill([0, 'clear']));
           return ack;
         }
@@ -50,5 +50,5 @@ export const useStage = (player, resetPlayer) => {
     setStage(updateStage)
   }, [player, resetPlayer])
 
-  return [stage, setStage, clearedRows]
+  return [stage, setStage, rowsCleared]
 }

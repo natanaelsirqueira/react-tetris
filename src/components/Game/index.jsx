@@ -7,6 +7,7 @@ import StartButton from '../StartButton'
 import { useStage } from '../../hooks/useStage'
 import { usePlayer } from '../../hooks/usePlayer'
 import { useInterval } from '../../hooks/useInterval'
+import { useGameStatus } from '../../hooks/useGameStatus'
 
 import { createStage, checkCollision, Keycodes } from '../../helpers/gameHelpers'
 
@@ -17,14 +18,18 @@ const Game = () => {
   const [gameOver, setGameOver] = useState(false)
 
   const [player, updatePlayerPosition, rotatePlayer, resetPlayer] = usePlayer()
-  const [stage, setStage] = useStage(player, resetPlayer)
+  const [stage, setStage, rowsCleared] = useStage(player, resetPlayer)
+  const [score, setScore, rows, setRows, level, setLevel] = useGameStatus(rowsCleared)
 
   const startGame = useCallback(() => {
     setStage(createStage())
     setDropTime(1000)
     resetPlayer()
+    setScore(0);
+    setLevel(0);
+    setRows(0);
     setGameOver(false)
-  }, [resetPlayer, setStage])
+  }, [resetPlayer, setLevel, setRows, setScore, setStage])
 
   const moveInX = useCallback((direction) => {
     const intendedMove = { x: direction, y: 0 }
@@ -47,7 +52,14 @@ const Game = () => {
     } else {
       updatePlayerPosition({ ...intendedMove, collided: false })
     }
-  }, [player, stage, updatePlayerPosition])
+
+    // Increase level when player has cleared 10 rows
+    if (rows > (level + 1) * 10) {
+      setLevel(prev => prev + 1);
+      // Also increase speed
+      setDropTime(1000 / (level + 1) + 200);
+    }
+  }, [level, player, rows, setLevel, stage, updatePlayerPosition])
 
   const handleKeyDown = useCallback(({ keyCode }) => {
     if (gameOver) return
@@ -66,10 +78,10 @@ const Game = () => {
 
   const handleKeyUp = useCallback(({ keyCode }) => {
     if (!gameOver && keyCode === Keycodes.DOWN_ARROW) {
-      setDropTime(1000)
+      setDropTime(1000 / (level + 1) + 200)
     }
 
-  }, [gameOver])
+  }, [gameOver, level])
 
   useInterval(() => drop(), dropTime)
 
@@ -83,9 +95,9 @@ const Game = () => {
             ? <Display gameOver={gameOver} text="Game Over" />
             : (
               <>
-                <Display text="Score" />
-                <Display text="Rows" />
-                <Display text="Level" />
+                <Display text={`Score: ${score}`} />
+                <Display text={`Rows: ${rows}`} />
+                <Display text={`Level: ${level}`} />
               </>
             )
           }
