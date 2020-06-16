@@ -27,8 +27,7 @@ export const usePlayer = () => {
   }, [])
 
   const rotatePlayer = useCallback((stage, dir) => {
-    // FIX ME abosolutely need to tackle this
-    const playerClone = JSON.parse(JSON.stringify(player))
+    const playerClone = { ...player }
 
     playerClone.tetromino = rotate(playerClone.tetromino, dir)
 
@@ -50,6 +49,16 @@ export const usePlayer = () => {
     setPlayer(playerClone)
   }, [player, rotate])
 
+  const dropPlayer = useCallback(stage => {
+    const playerClone = { ...player }
+    
+    while (!checkCollision(playerClone, stage, { x: 0, y: 1 })) {
+      playerClone.pos.y += 1
+    }
+
+    setPlayer({ ...playerClone, collided: true })
+  }, [player])
+
   const resetPlayer = useCallback(() => {
     setPlayer({
       pos: { x: STAGE_WIDTH / 2 - 2, y: 0 },
@@ -58,5 +67,5 @@ export const usePlayer = () => {
     })
   }, [])
 
-  return [player, updatePlayerPosition, rotatePlayer, resetPlayer]
+  return [player, updatePlayerPosition, rotatePlayer, dropPlayer, resetPlayer]
 }

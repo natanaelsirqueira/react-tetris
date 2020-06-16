@@ -17,7 +17,7 @@ const Game = () => {
   const [dropTime, setDropTime] = useState(null)
   const [gameOver, setGameOver] = useState(false)
 
-  const [player, updatePlayerPosition, rotatePlayer, resetPlayer] = usePlayer()
+  const [player, updatePlayerPosition, rotatePlayer, dropPlayer, resetPlayer] = usePlayer()
   const [stage, setStage, rowsCleared] = useStage(player, resetPlayer)
   const [score, setScore, rows, setRows, level, setLevel] = useGameStatus(rowsCleared)
 
@@ -73,11 +73,14 @@ const Game = () => {
     } else if (keyCode === Keycodes.DOWN_ARROW) {
       setDropTime(null)
       drop()
+    } else if (keyCode === Keycodes.SPACE_BAR) {
+      setDropTime(null)
+      dropPlayer(stage)
     }
-  }, [drop, gameOver, moveInX, rotatePlayer, stage])
+  }, [drop, dropPlayer, gameOver, moveInX, rotatePlayer, stage])
 
   const handleKeyUp = useCallback(({ keyCode }) => {
-    if (!gameOver && keyCode === Keycodes.DOWN_ARROW) {
+    if (!gameOver && (keyCode === Keycodes.DOWN_ARROW || keyCode === Keycodes.SPACE_BAR)) {
       setDropTime(1000 / (level + 1) + 200)
     }
 

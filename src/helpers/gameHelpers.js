@@ -4,6 +4,7 @@ export const STAGE_WIDTH = 12;
 export const STAGE_HEIGHT = 20;
 
 export const Keycodes = {
+  SPACE_BAR: 32,
   LEFT_ARROW: 37,
   UP_ARROW: 38,
   RIGHT_ARROW: 39,
